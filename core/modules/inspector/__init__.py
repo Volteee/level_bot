@@ -1,0 +1,1 @@
+from core.modules.inspector.register_handlers import register_handlers

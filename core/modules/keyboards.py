@@ -9,3 +9,33 @@ cancelButton = InlineKeyboardMarkup(inline_keyboard=[
         )
     ]
 ])
+
+
+SkipOrCancelKeyboard = InlineKeyboardMarkup(inline_keyboard=[
+    [
+        InlineKeyboardButton(
+            text = "Пропустить",
+            callback_data="skip",
+        )
+    ],
+    [
+        InlineKeyboardButton(
+            text = "Отменить",
+            callback_data="cancel",
+        )
+    ]
+])
+
+
+chooseActionKeyboard = InlineKeyboardMarkup(inline_keyboard=[
+    [
+        InlineKeyboardButton(
+            text = "Выполнить",
+            callback_data="mark_order_success"
+        ),
+        InlineKeyboardButton(
+            text = "Отклонить",
+            callback_data="mark_order_canceled"
+        )
+    ]
+])

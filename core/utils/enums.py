@@ -4,6 +4,7 @@ import enum
 class UserRoleEnum(str, enum.Enum):
     INITIATOR = "INITIATOR"
     INSPECTOR = "INSPECTOR"
+    UNKNOWN = "UNKNOWN"
     ADMIN = "ADMIN"
 
 
@@ -22,3 +23,9 @@ class OrderCurrencyEnum(str, enum.Enum):
 class MessageTypeEnum(str, enum.Enum):
     INITIATOR_MESSAGE = 'INITIATOR_MESSAGE'
     INSPECTOR_MESSAGE = 'INSPECTOR_MESSAGE'
+
+
+class FileMediaTypeEnum(str, enum.Enum):
+    DOCUMENT = 'DOCUMENT'
+    PHOTO = 'PHOTO'
+    VIDEO = 'VIDEO'

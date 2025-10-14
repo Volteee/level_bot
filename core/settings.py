@@ -1,3 +1,4 @@
+import asyncio
 from os import getenv
 from dotenv import load_dotenv
 from dataclasses import dataclass
@@ -24,27 +25,11 @@ class Mongo:
     url: str
 
 
-class AdminChat():
-    def __init__(self) -> None:
-        try:
-            with open("./data/config/admin_chat_id.txt", "r") as file:
-                text = file.read()
-                self.id = int(text if text else 0)
-        except FileNotFoundError:
-            with open("./data/config/admin_chat_id.txt", "w") as file:
-                file.write("0")
-    def set_chat_id(self, chat_id: int) -> None:
-        self.id = chat_id
-        with open("./data/config/admin_chat_id.txt", "w") as file:
-            file.write(str(chat_id))
-
-
 @dataclass
 class Settings:
     bots: Bots
     database: Database
     mongo: Mongo
-    admin_chat: AdminChat
 
 
 def get_settings():
@@ -64,8 +49,7 @@ def get_settings():
         ),
         mongo=Mongo(
             url=getenv("MONGO_URL"),
-        ),
-        admin_chat=AdminChat(),
+        )
     )
 
 

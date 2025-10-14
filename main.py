@@ -9,7 +9,7 @@ import logging
 # from core.utils.init_admin import init_admin
 # from core.utils.set_commands import set_commands
 
-from core.modules import initiator, common
+from core.modules import initiator, inspector, common
 
 
 async def start_bot(bot: Bot):
@@ -34,6 +34,7 @@ async def main():
 
     common.register_handlers(dp)
     initiator.register_handlers(dp)
+    inspector.register_handlers(dp)
 
     dp.message.middleware(MediaGroupMiddleware())
 

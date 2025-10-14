@@ -1,5 +1,7 @@
-from core.utils.enums import OrderCurrencyEnum, UserRoleEnum, OrderStateEnum, MessageTypeEnum
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from datetime import datetime
+from core.utils.enums import FileMediaTypeEnum, OrderCurrencyEnum, UserRoleEnum, OrderStateEnum, MessageTypeEnum
+from sqlalchemy.dialects.postgresql import JSON as pgJSON
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import ForeignKey, BigInteger
 from .base import Base
 from uuid import UUID, uuid4
@@ -10,42 +12,63 @@ class User(Base):
 
     tg_username: Mapped[str] = mapped_column(unique=True)
     role: Mapped[UserRoleEnum]
-    orders: Mapped[list["Order"]] = relationship(
-        "Order",
-        back_populates="user",
-        cascade="all, delete-orphan"
-    )
-    relation: Mapped["Relation"] = relationship(
-        "Relation",
-        back_populates="initiator",
-    )
+    chat_id: Mapped[int] = mapped_column(BigInteger)
+
+    def __init__(
+        self,
+        tg_username: str,
+        role: UserRoleEnum,
+        chat_id: int,
+    ) -> None:
+        self.id = uuid4()
+        self.tg_username = tg_username
+        self.role = role
+        self.chat_id = chat_id
+        self.created_at = datetime.now()
 
 
 class File(Base):
     __tablename__ = 'files'
 
     path: Mapped[str] = mapped_column(unique=True)
-    is_document: Mapped[bool]
-    is_photo: Mapped[bool]
+    media_type: Mapped[FileMediaTypeEnum]
     order_id: Mapped[int] = mapped_column(ForeignKey('orders.id'))
-    order: Mapped["Order"] = relationship(
-        "Order",
-        back_populates="files",
-    )
+
+    def __init__(
+        self,
+        path: str,
+        media_type: FileMediaTypeEnum,
+        order_id: UUID,
+    ) -> None:
+        self.id = uuid4()
+        self.path = path
+        self.media_type = media_type
+        self.order_id = order_id
+        self.created_at = datetime.now()
 
 
 class Message(Base):
     __tablename__ = 'messages'
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     chat_id: Mapped[int] = mapped_column(BigInteger)
     message_id: Mapped[int] = mapped_column(BigInteger)
     message_type: Mapped[MessageTypeEnum]
-    order_id: Mapped[int] = mapped_column(ForeignKey('orders.id'))
-    order: Mapped["Order"] = relationship(
-        "Order",
-        back_populates="messages",
-    )
+    order_id: Mapped[UUID] = mapped_column(ForeignKey('orders.id'))
+
+    def __init__(
+        self,
+        chat_id: int,
+        message_id: int,
+        message_type: MessageTypeEnum,
+        order_id: UUID,
+    ):
+        self.id = uuid4()
+        self.chat_id = chat_id
+        self.message_id = message_id
+        self.message_type = message_type
+        self.order_id = order_id
+        self.created_at = datetime.now()
+
 
 
 class Order(Base):
@@ -59,20 +82,6 @@ class Order(Base):
     reply: Mapped[str] = mapped_column(nullable=True)
     amount: Mapped[float]
     currency: Mapped[OrderCurrencyEnum]
-    initiator: Mapped["User"] = relationship(
-        "User",
-        back_populates="orders",
-    )
-    files: Mapped[list["File"]] = relationship(
-        "File",
-        back_populates="order",
-        cascade="all, delete-orphan"
-    )
-    messages: Mapped[list["Message"]] = relationship(
-        "Message",
-        back_populates="order",
-        cascade="all, delete-orphan"
-    )
 
     def __init__(
         self,
@@ -94,6 +103,7 @@ class Order(Base):
         self.amount = amount
         self.currency = currency
         self.reply = reply
+        self.created_at = datetime.now()
 
 
 class Relation(Base):
@@ -104,7 +114,20 @@ class Relation(Base):
     second_inspector_id: Mapped[UUID] = mapped_column(ForeignKey('users.id'), nullable=True)
     third_inspector_id: Mapped[UUID] = mapped_column(ForeignKey('users.id'), nullable=True)
     forth_inspector_id: Mapped[UUID] = mapped_column(ForeignKey('users.id'), nullable=True)
-    initiator: Mapped["User"] = relationship(
-        "User",
-        back_populates="relation",
-    )
+
+
+class Config(Base):
+    __tablename__ = 'configs'
+
+    key: Mapped[str]
+    data: Mapped[dict] = mapped_column(pgJSON)
+
+    def __init__(
+        self,
+        key: str,
+        data: dict,
+    ):
+        self.id = uuid4()
+        self.key = key
+        self.data = data
+        self.created_at = datetime.now()

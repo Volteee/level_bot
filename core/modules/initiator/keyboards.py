@@ -16,19 +16,3 @@ CurrencyKeyboard = InlineKeyboardMarkup(inline_keyboard=[
         )
     ]
 ])
-
-
-FilesKeyboard = InlineKeyboardMarkup(inline_keyboard=[
-    [
-        InlineKeyboardButton(
-            text = "Пропустить",
-            callback_data="skip",
-        )
-    ],
-    [
-        InlineKeyboardButton(
-            text = "Отменить",
-            callback_data="cancel",
-        )
-    ]
-])

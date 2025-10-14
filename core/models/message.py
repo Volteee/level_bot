@@ -7,20 +7,26 @@ from .models import Message
 
 @connection
 async def add_message(
+    session: AsyncSession,
+    message: Message,
+) -> None:
+    session.add(message)
+    await session.commit()
+
+
+@connection
+async def get_message(
     chat_id: int,
     message_id: int,
-    message_type: MessageTypeEnum,
-    order_id: int,
     session: AsyncSession
-) -> None:
-    new_message = Message(
-        chat_id=chat_id,
-        message_id=message_id,
-        message_type=message_type,
-        order_id=order_id
+) -> Message:
+    query = select(Message).where(
+        Message.chat_id == chat_id,
+        Message.message_id == message_id
     )
-    session.add(new_message)
-    await session.commit()
+    result = await session.execute(query)
+    records = result.scalars().first()
+    return records
 
 
 @connection
@@ -36,6 +42,16 @@ async def get_messages(
     result = await session.execute(query)
     records = result.scalars().all()
     return records
+
+
+@connection
+async def delete_message(
+    id: int,
+    session: AsyncSession
+) -> None:
+    query = delete(Message).where(Message.id == id)
+    await session.execute(query)
+    await session.commit()
 
 
 @connection
