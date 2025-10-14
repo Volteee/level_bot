@@ -1,8 +1,11 @@
 // app/api/admin/users/route.ts
 import { NextResponse } from 'next/server';
 import pool from '@/lib/db';
+import { checkAuth } from '@/utils/check_auth';
 
-export async function GET() {
+export async function GET(request:Request) {
+  const resp = await checkAuth(request)
+  if (resp) return resp;
   const client = await pool.connect();
   try {
     const result = await client.query(`

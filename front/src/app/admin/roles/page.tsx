@@ -8,14 +8,23 @@ export default function RolesManagement() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [initData, setInitData] = useState('');
 
   useEffect(() => {
-    fetchUsers();
+    setInitData(window.Telegram.WebApp.initData);
   }, []);
+
+  useEffect(() => {
+    if (initData !== '') fetchUsers();
+  }, [initData]);
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch('/api/admin/users');
+      const response = await fetch('/api/admin/users', {
+          headers: {
+          'initData': initData,
+        },
+        });
       if (!response.ok) throw new Error('Failed to fetch users');
       const data = await response.json();
       setUsers(data);
@@ -40,6 +49,7 @@ export default function RolesManagement() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'initData': initData,
         },
         body: JSON.stringify({ users }),
       });

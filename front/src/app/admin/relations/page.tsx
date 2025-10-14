@@ -11,16 +11,29 @@ export default function RelationsManagement() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [expandedInitiator, setExpandedInitiator] = useState<string | null>(null);
+  const [initData, setInitData] = useState('');
 
   useEffect(() => {
-    fetchData();
+    setInitData(window.Telegram.WebApp.initData);
   }, []);
+
+  useEffect(() => {
+    if (initData !== '') fetchData();
+  }, [initData]);
 
   const fetchData = async () => {
     try {
       const [relationsRes, usersRes] = await Promise.all([
-        fetch('/api/admin/relations'),
-        fetch('/api/admin/users')
+        fetch('/api/admin/relations', {
+          headers: {
+          'initData': initData,
+        },
+        }),
+        fetch('/api/admin/users', {
+          headers: {
+          'initData': initData,
+        },
+        })
       ]);
       
       if (!relationsRes.ok || !usersRes.ok) throw new Error('Failed to fetch data');
@@ -79,6 +92,7 @@ export default function RelationsManagement() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'initData': initData,
         },
         body: JSON.stringify({ relations }),
       });
