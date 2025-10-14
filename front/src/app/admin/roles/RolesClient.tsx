@@ -1,0 +1,117 @@
+// app/admin/roles/RolesClient.tsx
+'use client';
+
+import { useState } from 'react';
+import { User, UserRoleEnum } from './types';
+
+interface RolesClientProps {
+  initialUsers: User[];
+}
+
+export default function RolesClient({ initialUsers }: RolesClientProps) {
+  const [users, setUsers] = useState<User[]>(initialUsers);
+  const [saving, setSaving] = useState(false);
+
+  const updateUserRole = (userId: string, newRole: UserRoleEnum) => {
+    setUsers(users.map(user => 
+      user.id === userId ? { ...user, role: newRole } : user
+    ));
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const response = await fetch('/api/admin/users/roles', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 'users': users, 'initData': window.Telegram.WebApp.initData }),
+      });
+
+      if (response.ok) {
+        alert('Роли успешно обновлены');
+        // Обновляем данные после успешного сохранения
+        const updatedResponse = await fetch('/api/admin/users');
+        const updatedUsers = await updatedResponse.json();
+        setUsers(updatedUsers);
+      } else {
+        const error = await response.json();
+        alert(`Ошибка при сохранении ролей: ${error.error}`);
+      }
+    } catch (error) {
+      console.error('Error saving roles:', error);
+      alert('Ошибка при сохранении ролей');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-2xl font-bold mb-6">Управление ролями пользователей</h1>
+      
+      <div className="bg-white shadow-md rounded-lg overflow-hidden">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Пользователь
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Роль
+              </th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {users.map((user) => (
+              <tr key={user.id}>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm font-medium text-gray-900">
+                    {user.tg_username}
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    Chat ID: {user.chat_id}
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <select
+                    value={user.role}
+                    onChange={(e) => updateUserRole(user.id, e.target.value as UserRoleEnum)}
+                    className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                  >
+                    {Object.values(UserRoleEnum).map((role) => (
+                      <option key={role} value={role}>
+                        {getRoleDisplayName(role)}
+                      </option>
+                    ))}
+                  </select>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="mt-6 flex justify-end">
+        <button
+          onClick={handleSave}
+          disabled={saving}
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50"
+        >
+          {saving ? 'Сохранение...' : 'Сохранить'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function getRoleDisplayName(role: UserRoleEnum): string {
+  const roleNames = {
+    [UserRoleEnum.INITIATOR]: 'Инициатор',
+    [UserRoleEnum.INSPECTOR]: 'Проверяющий',
+    [UserRoleEnum.ADMIN]: 'Администратор',
+    [UserRoleEnum.UNKNOWN]: 'Неопределен',
+  };
+  return roleNames[role];
+}
