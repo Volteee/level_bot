@@ -18,6 +18,7 @@ export default function AdminDashboard() {
   const [initData, setInitData] = useState('');
 
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const app = (window as any).Telegram?.WebApp;
     if (app)
       setInitData(window.Telegram.WebApp.initData);
