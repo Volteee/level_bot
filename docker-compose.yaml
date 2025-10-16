@@ -96,6 +96,8 @@ services:
       - ./cert.pem:/etc/nginx/cert.pem
     depends_on:
       - front
+    networks:
+      - network
 
 volumes:
   files:
