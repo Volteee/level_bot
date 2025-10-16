@@ -49,13 +49,9 @@ FROM node:20-alpine AS front_builder
 
 WORKDIR /app
 
-COPY ./front/package.json ./front/package-lock.json* ./
-RUN npm ci
+COPY ./front .
 
-COPY ./front/src ./src
-COPY ./front/public ./public
-COPY ./front/next.config.js .
-COPY ./front/tsconfig.json .
+RUN npm ci
 
 RUN npm run build
 
@@ -66,10 +62,12 @@ WORKDIR /app
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
-USER nextjs
 
 COPY --from=front_builder /app/public ./public
 
-COPY --from=front_builder --chown=nextjs:nodejs /app/.next/ ./.next
+COPY --from=front_builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=front_builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-CMD node .next/standalone/server.js
+USER nextjs
+
+CMD node server.js
