@@ -70,6 +70,6 @@ USER nextjs
 
 COPY --from=front_builder /app/public ./public
 
-COPY --from=front_builder --chown=nextjs:nodejs /app/.next/ ./
+COPY --from=front_builder --chown=nextjs:nodejs /app/.next/ ./next
 
-CMD node ./standalone/server.js
+CMD node .next/standalone/server.js
