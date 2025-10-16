@@ -18,7 +18,8 @@ export default function AdminDashboard() {
   const [initData, setInitData] = useState('');
 
   useEffect(() => {
-    if (window.Telegram !== undefined)
+    const app = (window as any).Telegram?.WebApp;
+    if (app)
       setInitData(window.Telegram.WebApp.initData);
   }, []);
 
