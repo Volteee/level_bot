@@ -25,8 +25,6 @@ export default function AdminDashboard() {
     if (initData !== '') fetchStats();
   }, [initData])
 
-  console.log(initData)
-
   const fetchStats = async () => {
     try {
       const [usersRes, relationsRes] = await Promise.all([
