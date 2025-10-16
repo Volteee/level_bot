@@ -25,6 +25,7 @@ export default function ConditionsManagement() {
 
   useEffect(() => {
     if (initData !== '') fetchConditions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initData]);
 
   const fetchConditions = async () => {

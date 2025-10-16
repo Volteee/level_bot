@@ -23,6 +23,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     if (initData !== '') fetchStats();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initData])
 
   const fetchStats = async () => {
@@ -47,10 +48,14 @@ export default function AdminDashboard() {
 
       const statsData: Stats = {
         totalUsers: users.length,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         initiators: users.filter((user: any) => user.role === 'INITIATOR').length,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         inspectors: users.filter((user: any) => user.role === 'INSPECTOR').length,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         admins: users.filter((user: any) => user.role === 'ADMIN').length,
         totalRelations: relations.length,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         configuredRelations: relations.filter((rel: any) => 
           rel.first_inspector_id || rel.second_inspector_id || 
           rel.third_inspector_id || rel.forth_inspector_id

@@ -19,6 +19,7 @@ export default function RelationsManagement() {
 
   useEffect(() => {
     if (initData !== '') fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initData]);
 
   const fetchData = async () => {
@@ -176,7 +177,7 @@ export default function RelationsManagement() {
                     { field: 'second_inspector_id', label: '2' },
                     { field: 'third_inspector_id', label: '3' },
                     { field: 'forth_inspector_id', label: '4' }
-                  ].map(({ field, label }) => {
+                  ].map(({ field }) => {
                     const inspectorField = field as keyof Pick<
                       Relation, 
                       'first_inspector_id' | 'second_inspector_id' | 'third_inspector_id' | 'forth_inspector_id'
