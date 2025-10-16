@@ -1,4 +1,4 @@
-FROM python:3.12.10 AS builder
+FROM python:3.12.10 AS bot_builder
 
 WORKDIR /app
 
@@ -16,8 +16,8 @@ FROM python:3.12.10-slim AS bot
 
 WORKDIR /app
 
-COPY --from=builder /app/wheels /wheels
-COPY --from=builder /app/requirements.txt .
+COPY --from=bot_builder /app/wheels /wheels
+COPY --from=bot_builder /app/requirements.txt .
 
 RUN pip install --no-cache /wheels/*
 
@@ -33,8 +33,8 @@ FROM python:3.12.10-slim AS migration
 
 WORKDIR /app
 
-COPY --from=builder /app/wheels /wheels
-COPY --from=builder /app/requirements.txt .
+COPY --from=bot_builder /app/wheels /wheels
+COPY --from=bot_builder /app/requirements.txt .
 
 RUN pip install --no-cache /wheels/*
 
@@ -45,7 +45,7 @@ COPY ./bot/alembic.ini ./
 CMD ["alembic", "upgrade", "head"]
 
 
-FROM node:20-alpine AS builder
+FROM node:20-alpine AS front_builder
 
 WORKDIR /app
 
@@ -68,9 +68,9 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 USER nextjs
 
-COPY --from=builder /app/public ./public
+COPY --from=front_builder /app/public ./public
 
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=front_builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=front_builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 CMD node server.js
