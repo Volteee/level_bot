@@ -54,7 +54,7 @@ RUN npm ci
 
 COPY ./front/src ./src
 COPY ./front/public ./public
-COPY ./front/next.config.js .
+COPY ./front/next.config.ts .
 COPY ./front/tsconfig.json .
 
 RUN npm run build
