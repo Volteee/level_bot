@@ -54,7 +54,7 @@ RUN npm ci
 
 COPY ./front/src ./src
 COPY ./front/public ./public
-COPY ./front/next.config.ts .
+COPY ./front/next.config.js .
 COPY ./front/tsconfig.json .
 
 RUN npm run build
@@ -70,7 +70,7 @@ USER nextjs
 
 COPY --from=front_builder /app/public ./public
 
-# COPY --from=front_builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=front_builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=front_builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 CMD node server.js
