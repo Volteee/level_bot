@@ -83,7 +83,6 @@ async def start_command(message: Message, bot: Bot):
                     f"Пользователь @{message.from_user.username} запрашивает выдачу роли. Для настройки зайдите в панель администратора.",
                     reply_markup=None,
                 )
-                break
         await message.answer("Запросил разрешение у администратора. Подождите до одобрения запроса.")
         return
     if user.role == UserRoleEnum.UNKNOWN:
