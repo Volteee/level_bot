@@ -62,37 +62,52 @@ async def start_command(message: Message, bot: Bot):
         if message.from_user.username == settings.bots.admin_username:
             user = models.User(
                 message.from_user.username,
-                UserRoleEnum.ADMIN,
                 message.chat.id,
             )
             await models.user.add_user(user=user)
+            user_role = models.UserRole(
+                user.id,
+                UserRoleEnum.ADMIN,
+            )
+            await models.user_role.add_user_role(user_role=user_role)
+
             await message.answer("Добавил вас как администратора.")
             return
 
         user = models.User(
             message.from_user.username,
-            UserRoleEnum.UNKNOWN,
             message.chat.id,
         )
         await models.user.add_user(user=user)
-        users = await models.user.get_all_users()
-        for user in users:
-            if user.role == UserRoleEnum.ADMIN:
+        user_role = models.UserRole(
+            user.id,
+            UserRoleEnum.UNKNOWN,
+        )
+        await models.user_role.add_user_role(user_role=user_role)
+        users_roles = await models.user_role.get_all_users_roles()
+        for user_role in users_roles:
+            if user_role.role == UserRoleEnum.ADMIN:
+                user = await models.user.get_user_by_id(id=user_role.user_id)
                 await bot.send_message(
                     user.chat_id,
                     f"Пользователь @{message.from_user.username} запрашивает выдачу роли. Для настройки зайдите в панель администратора.",
                     reply_markup=None,
                 )
-        await message.answer("Запросил разрешение у администратора. Подождите до одобрения запроса.")
+        await message.answer("Запросил разрешение у администратора. Подождите одобрения запроса.")
         return
-    if user.role == UserRoleEnum.UNKNOWN:
-        await message.answer("Запросил разрешение у администратора. Подождите до одобрения запроса.")
+    user_roles = await models.user_role.get_user_roles_by_user_id(user_id=user.id)
+    sub = [role.role for role in user_roles]
+    if (UserRoleEnum.UNKNOWN in sub) or (not user_roles):
+        await message.answer("Запросил разрешение у администратора. Подождите одобрения запроса.")
         return
-    if user.role == UserRoleEnum.INITIATOR:
+    if (UserRoleEnum.INITIATOR in sub):
         await message.answer("Для создания заявки используйте команду: /order\nДля отмены создания используйте команду: /cancel")
         return
-    if user.role == UserRoleEnum.INSPECTOR:
+    if (UserRoleEnum.INSPECTOR in sub):
         await message.answer("У вас нет команд, доступные действия будут указаны в кнопках.")
         return
-    if user.role == UserRoleEnum.ADMIN:
+    if (UserRoleEnum.PAYEER in sub):
+        await message.answer("У вас нет доступных команд.")
+        return
+    if (UserRoleEnum.ADMIN in sub):
         pass

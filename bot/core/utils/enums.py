@@ -4,6 +4,7 @@ import enum
 class UserRoleEnum(str, enum.Enum):
     INITIATOR = "INITIATOR"
     INSPECTOR = "INSPECTOR"
+    PAYEER = "PAYEER"
     UNKNOWN = "UNKNOWN"
     ADMIN = "ADMIN"
 
@@ -13,6 +14,7 @@ class OrderStateEnum(str, enum.Enum):
     PENDING = "PENDING"
     SUCCESS = "SUCCESS"
     CANCELED = "CANCELED"
+    PAID = "PAID"
 
 
 class OrderCurrencyEnum(str, enum.Enum):

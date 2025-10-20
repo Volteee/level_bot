@@ -5,20 +5,61 @@ import { checkAuth } from '@/utils/check_auth';
 
 export async function PUT(request: Request) {
   const resp = await checkAuth(request)
-    if (resp) {
-      return resp
-    }
+  if (resp) {
+    return resp
+  }
+  
   const client = await pool.connect();
   try {
-    const { users } = await request.json();
+    const { users, currentUsername } = await request.json();
     
+    // Получаем ID текущего пользователя по username
+    const currentUserResult = await client.query(
+      'SELECT id FROM users WHERE tg_username = $1',
+      [currentUsername]
+    );
+    
+    if (currentUserResult.rows.length === 0) {
+      return NextResponse.json(
+        { error: 'Current user not found' },
+        { status: 400 }
+      );
+    }
+    
+    const currentUserId = currentUserResult.rows[0].id;
+    
+    // Проверяем, что текущий пользователь не удаляет у себя админские права
+    const currentUser = users.find((user: any) => user.id === currentUserId);
+    if (currentUser && !currentUser.roles.includes('ADMIN')) {
+      return NextResponse.json(
+        { error: 'Нельзя удалить у себя права администратора' },
+        { status: 400 }
+      );
+    }
+
+    // Проверяем, что у всех пользователей есть хотя бы одна роль
+    for (const user of users) {
+      if (!user.roles || user.roles.length === 0) {
+        return NextResponse.json(
+          { error: `Пользователь ${user.tg_username} должен иметь хотя бы одну роль` },
+          { status: 400 }
+        );
+      }
+    }
+
     await client.query('BEGIN');
     
     for (const user of users) {
-      await client.query(
-        'UPDATE users SET role = $1 WHERE id = $2',
-        [user.role, user.id]
-      );
+      // Удаляем все текущие роли пользователя
+      await client.query('DELETE FROM users_roles WHERE user_id = $1', [user.id]);
+      
+      // Добавляем новые роли
+      for (const role of user.roles) {
+        await client.query(
+          'INSERT INTO users_roles (user_id, role) VALUES ($1, $2)',
+          [user.id, role]
+        );
+      }
     }
     
     await client.query('COMMIT');
@@ -28,29 +69,6 @@ export async function PUT(request: Request) {
     await client.query('ROLLBACK');
     console.error('Error updating roles:', error);
     return NextResponse.json({ error: 'Failed to update roles' }, { status: 500 });
-  } finally {
-    client.release();
-  }
-}
-
-// Добавляем другие методы для этого маршрута
-export async function GET(request:Request) {
-  const resp = await checkAuth(request)
-  if (resp) {
-    return resp
-  }
-  const client = await pool.connect();
-  try {
-    const result = await client.query(`
-      SELECT id, tg_username, role, chat_id 
-      FROM users 
-      ORDER BY tg_username
-    `);
-    
-    return NextResponse.json(result.rows);
-  } catch (error) {
-    console.error('Error fetching users:', error);
-    return NextResponse.json({ error: 'Failed to fetch users' }, { status: 500 });
   } finally {
     client.release();
   }

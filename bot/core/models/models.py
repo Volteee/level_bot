@@ -11,19 +11,33 @@ class User(Base):
     __tablename__ = 'users'
 
     tg_username: Mapped[str] = mapped_column(unique=True)
-    role: Mapped[UserRoleEnum]
     chat_id: Mapped[int] = mapped_column(BigInteger)
 
     def __init__(
         self,
         tg_username: str,
-        role: UserRoleEnum,
         chat_id: int,
     ) -> None:
         self.id = uuid4()
         self.tg_username = tg_username
-        self.role = role
         self.chat_id = chat_id
+        self.created_at = datetime.now()
+
+
+class UserRole(Base):
+    __tablename__ = 'users_roles'
+
+    user_id: Mapped[UUID] = mapped_column(ForeignKey('users.id'))
+    role: Mapped[UserRoleEnum]
+
+    def __init__(
+        self,
+        user_id: UUID,
+        role: UserRoleEnum,
+    ) -> None:
+        self.id = uuid4()
+        self.user_id = user_id
+        self.role = role
         self.created_at = datetime.now()
 
 
@@ -32,7 +46,7 @@ class File(Base):
 
     path: Mapped[str] = mapped_column(unique=True)
     media_type: Mapped[FileMediaTypeEnum]
-    order_id: Mapped[int] = mapped_column(ForeignKey('orders.id'))
+    order_id: Mapped[UUID] = mapped_column(ForeignKey('orders.id'))
 
     def __init__(
         self,

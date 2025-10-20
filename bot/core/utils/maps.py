@@ -2,9 +2,11 @@ from .enums import UserRoleEnum, OrderStateEnum
 
 
 ROLE_ENUM_TO_TEXT = {
+    UserRoleEnum.UNKNOWN: "неопределен",
     UserRoleEnum.INITIATOR: "инициатор",
     UserRoleEnum.INSPECTOR: "проверяющий",
     UserRoleEnum.ADMIN: "администратор",
+    UserRoleEnum.PAYEER: "плательщик"
 }
 
 

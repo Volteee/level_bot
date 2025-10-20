@@ -1,4 +1,5 @@
-"use client";
+// app/admin/page.tsx
+'use client';
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
@@ -25,20 +26,16 @@ export default function AdminDashboard() {
   useEffect(() => {
     if (initData !== '') fetchStats();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initData])
+  }, [initData]);
 
   const fetchStats = async () => {
     try {
       const [usersRes, relationsRes] = await Promise.all([
         fetch('/api/admin/users', {
-          headers: {
-          'initData': initData,
-        },
+          headers: { 'initData': initData },
         }),
         fetch('/api/admin/relations', {
-          headers: {
-          'initData': initData,
-        },
+          headers: { 'initData': initData },
         })
       ]);
       
@@ -50,11 +47,11 @@ export default function AdminDashboard() {
       const statsData: Stats = {
         totalUsers: users.length,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        initiators: users.filter((user: any) => user.role === 'INITIATOR').length,
+        initiators: users.filter((user: any) => user.roles.includes('INITIATOR')).length,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        inspectors: users.filter((user: any) => user.role === 'INSPECTOR').length,
+        inspectors: users.filter((user: any) => user.roles.includes('INSPECTOR')).length,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        admins: users.filter((user: any) => user.role === 'ADMIN').length,
+        admins: users.filter((user: any) => user.roles.includes('ADMIN')).length,
         totalRelations: relations.length,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         configuredRelations: relations.filter((rel: any) => 

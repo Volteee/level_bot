@@ -11,7 +11,6 @@ from core.utils.get_order_next_step import get_order_next_step
 from core.utils.enums import FileMediaTypeEnum, MessageTypeEnum, OrderCurrencyEnum, OrderStateEnum, UserRoleEnum
 from core.utils.maps import ROLE_ENUM_TO_TEXT, STATE_ENUM_TO_TEXT
 from core.utils.is_float import is_float
-from core.settings import settings
 
 from ..keyboards import cancelButton, chooseActionKeyboard, SkipOrCancelKeyboard
 from .keyboards import CurrencyKeyboard
@@ -19,15 +18,24 @@ from .states import CreateOrderSteps
 
 
 async def create_order_command(message: Message, bot: Bot, state: FSMContext):
-    # user = await models.user.get_user_by_tg_username(
-    #     tg_username=message.from_user.username,
-    # )
-    # if not user:
-    #     await message.reply('Не нашел ваш username. Убедитесь, что администратор добавил вас в бота.')
-    #     return
-    # if user.role != UserRoleEnum.INITIATOR:
-    #     await message.reply(f'Для создания заявок нужна роль инициатора. Ваша роль - {ROLE_ENUM_TO_TEXT[user.role]}.')
-    #     return
+    user = await models.user.get_user_by_tg_username(
+        tg_username=message.from_user.username,
+    )
+    if not user:
+        await message.reply('Не нашел ваш username. Убедитесь, что администратор добавил вас в бота.')
+        return
+    user_roles = await models.user_role.get_user_roles_by_user_id(user_id=user.id)
+    if not user_roles:
+        await message.reply('Не нашел вашу роль. Убедитесь, что администратор зарегистрировал вас.')
+        return
+    is_initiator = False
+    for user_role in user_roles:
+        if user_role.role == UserRoleEnum.INITIATOR:
+            is_initiator = True
+            break
+    if not is_initiator:
+        await message.reply(f'Для создания заявок нужна роль инициатора. Ваши роли: {', '.join([ROLE_ENUM_TO_TEXT[role.role] for role in user_roles])}.')
+        return
     
     await message.delete()
     await state.clear()

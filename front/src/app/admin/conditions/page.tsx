@@ -25,8 +25,10 @@ export default function ConditionsManagement() {
   }, []);
 
   useEffect(() => {
-    if (initData !== '') fetchConditions();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (initData !== '') {
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      fetchConditions();
+    }
   }, [initData]);
 
   const fetchConditions = async () => {
@@ -36,7 +38,15 @@ export default function ConditionsManagement() {
           'initData': initData,
         },
       });
-      if (!response.ok) throw new Error('Failed to fetch conditions');
+      
+      if (!response.ok) {
+        if (response.status === 403) {
+          alert('Доступ запрещен. Требуются права администратора.');
+          return;
+        }
+        throw new Error('Failed to fetch conditions');
+      }
+      
       const data = await response.json();
       setConditions(data);
     } catch (error) {
@@ -121,7 +131,8 @@ export default function ConditionsManagement() {
       });
 
       if (response.ok) {
-        alert('Условия успешно сохранены');
+        const result = await response.json();
+        alert(result.message || 'Условия успешно сохранены');
       } else {
         const error = await response.json();
         alert(`Ошибка при сохранении условий: ${error.error}`);
@@ -158,6 +169,29 @@ export default function ConditionsManagement() {
       <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">
         Настройка условий для определения уровня по сумме
       </h1>
+
+      {/* Визуализация диапазонов */}
+      <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <h3 className="text-lg font-semibold text-blue-800 mb-2">Текущие настройки:</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+          <div className="bg-white rounded p-3 border border-blue-200">
+            <div className="font-medium text-blue-700">Уровень 1</div>
+            <div className="text-gray-600">0 - {formatNumber(conditions.first_high)}</div>
+          </div>
+          <div className="bg-white rounded p-3 border border-green-200">
+            <div className="font-medium text-green-700">Уровень 2</div>
+            <div className="text-gray-600">{formatNumber(conditions.second_low)} - {formatNumber(conditions.second_high)}</div>
+          </div>
+          <div className="bg-white rounded p-3 border border-yellow-200">
+            <div className="font-medium text-yellow-700">Уровень 3</div>
+            <div className="text-gray-600">{formatNumber(conditions.third_low)} - {formatNumber(conditions.third_high)}</div>
+          </div>
+          <div className="bg-white rounded p-3 border border-purple-200">
+            <div className="font-medium text-purple-700">Уровень 4</div>
+            <div className="text-gray-600">{formatNumber(conditions.forth_low)} и выше</div>
+          </div>
+        </div>
+      </div>
 
       <div className="bg-white shadow-md rounded-lg overflow-hidden">
         {/* Desktop Table */}
@@ -546,7 +580,8 @@ export default function ConditionsManagement() {
       <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-end">
         <button
           onClick={handleReset}
-          className="px-4 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-50 transition-colors"
+          disabled={saving}
+          className="px-4 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
         >
           Сбросить изменения
         </button>

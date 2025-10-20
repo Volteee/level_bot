@@ -4,6 +4,7 @@ import core.models.message as message
 import core.models.relation as relation
 import core.models.config as config
 import core.models.file as file
+import core.models.user_role as user_role
 from core.models.models import (
     User,
     Order,
@@ -11,4 +12,5 @@ from core.models.models import (
     File,
     Relation,
     Config,
+    UserRole,
 )

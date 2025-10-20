@@ -3,6 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import Script from 'next/script';
 import { useState } from 'react';
 
 export default function AdminLayout({
@@ -17,12 +18,13 @@ export default function AdminLayout({
     return pathname === path ? 'bg-gray-900 text-white' : 'text-gray-300 hover:text-white';
   };
 
-  const navItems = [
-    { href: '/admin', label: 'Главная' },
-    { href: '/admin/roles', label: 'Роли' },
-    { href: '/admin/relations', label: 'Назначения' },
-    { href: '/admin/conditions', label: 'Условия' },
-  ];
+const navItems = [
+  { href: '/admin', label: 'Главная' },
+  { href: '/admin/roles', label: 'Роли' },
+  { href: '/admin/relations', label: 'Назначения' },
+  { href: '/admin/conditions', label: 'Условия' },
+  { href: '/admin/orders', label: 'Заявки' },
+];
 
   return (
     <div className="min-h-screen bg-gray-50">

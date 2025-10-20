@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { User, Relation } from '@/types/user';
+import { User, Relation, UserRoleEnum } from '@/types/user';
 
 export default function RelationsManagement() {
   const [relations, setRelations] = useState<Relation[]>([]);
@@ -19,22 +19,19 @@ export default function RelationsManagement() {
   }, []);
 
   useEffect(() => {
-    if (initData !== '') fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (initData !== '')
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      fetchData();
   }, [initData]);
 
   const fetchData = async () => {
     try {
       const [relationsRes, usersRes] = await Promise.all([
         fetch('/api/admin/relations', {
-          headers: {
-          'initData': initData,
-        },
+          headers: { 'initData': initData },
         }),
         fetch('/api/admin/users', {
-          headers: {
-          'initData': initData,
-        },
+          headers: { 'initData': initData },
         })
       ]);
       
@@ -44,8 +41,8 @@ export default function RelationsManagement() {
       const usersData = await usersRes.json();
       
       setRelations(relationsData);
-      setInitiators(usersData.filter((user: User) => user.role === 'INITIATOR'));
-      setInspectors(usersData.filter((user: User) => user.role === 'INSPECTOR'));
+      setInitiators(usersData.filter((user: User) => user.roles.includes(UserRoleEnum.INITIATOR)));
+      setInspectors(usersData.filter((user: User) => user.roles.includes(UserRoleEnum.INSPECTOR)));
     } catch (error) {
       console.error('Error fetching data:', error);
       alert('Не удалось загрузить данные');
@@ -101,7 +98,7 @@ export default function RelationsManagement() {
 
       if (response.ok) {
         alert('Назначения успешно сохранены');
-        await fetchData(); // Обновляем данные
+        await fetchData();
       } else {
         const error = await response.json();
         alert(`Ошибка при сохранении назначений: ${error.error}`);

@@ -2,15 +2,17 @@
 export enum UserRoleEnum {
   INITIATOR = "INITIATOR",
   INSPECTOR = "INSPECTOR",
+  ADMIN = "ADMIN",
   UNKNOWN = "UNKNOWN",
-  ADMIN = "ADMIN"
+  PAYEER = "PAYEER"
 }
 
 export interface User {
   id: string;
   tg_username: string;
-  role: UserRoleEnum;
   chat_id: number;
+  roles: UserRoleEnum[];
+  relation_id?: string;
 }
 
 export interface Relation {
@@ -25,4 +27,32 @@ export interface Relation {
   second_inspector?: User;
   third_inspector?: User;
   forth_inspector?: User;
+}
+
+export interface Order {
+  id: string;
+  level: number;
+  step: number;
+  state: OrderStateEnum;
+  initiator_id: string;
+  description: string;
+  reply?: string;
+  amount: number;
+  currency: OrderCurrencyEnum;
+  created_at: string;
+  updated_at?: string;
+  initiator?: User;
+}
+
+export enum OrderStateEnum {
+  CREATED = "CREATED",
+  PENDING = "PENDING",
+  SUCCESS = "SUCCESS",
+  CANCELED = "CANCELED",
+  PAID = "PAID"
+}
+
+export enum OrderCurrencyEnum {
+  RUB = "RUB",
+  USD = "USD"
 }
