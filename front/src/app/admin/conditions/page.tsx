@@ -25,10 +25,8 @@ export default function ConditionsManagement() {
   }, []);
 
   useEffect(() => {
-    if (initData !== '') {
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      fetchConditions();
-    }
+    if (initData !== '') fetchConditions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initData]);
 
   const fetchConditions = async () => {

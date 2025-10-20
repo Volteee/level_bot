@@ -19,9 +19,8 @@ export default function RelationsManagement() {
   }, []);
 
   useEffect(() => {
-    if (initData !== '')
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      fetchData();
+    if (initData !== '') fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initData]);
 
   const fetchData = async () => {

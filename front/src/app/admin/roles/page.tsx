@@ -19,9 +19,8 @@ export default function RolesManagement() {
   }, []);
 
   useEffect(() => {
-    if (initData !== '')
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      fetchUsers();
+    if (initData !== '')fetchUsers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initData]);
 
   const fetchUsers = async () => {

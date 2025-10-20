@@ -24,6 +24,7 @@ export async function GET(request: Request) {
       WHERE 1=1
     `;
     
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const params: any[] = [];
     
     if (state) {
