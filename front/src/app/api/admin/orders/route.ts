@@ -24,7 +24,6 @@ export async function GET(request: Request) {
       WHERE 1=1
     `;
     
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const params: any[] = [];
     
     if (state) {
@@ -36,26 +35,37 @@ export async function GET(request: Request) {
     
     const result = await client.query(query, params);
     
-    const orders = result.rows.map(row => ({
-      id: row.id,
-      level: row.level,
-      step: row.step,
-      state: row.state,
-      initiator_id: row.initiator_id,
-      description: row.description,
-      reply: row.reply,
-      amount: row.amount,
-      currency: row.currency,
-      created_at: row.created_at,
-      updated_at: row.updated_at,
-      initiator: {
-        id: row.initiator_id,
-        tg_username: row.initiator_username,
-        chat_id: row.initiator_chat_id
-      }
-    }));
+    // Получаем файлы для каждой заявки
+    const ordersWithFiles = await Promise.all(
+      result.rows.map(async (row) => {
+        const filesResult = await client.query(
+          'SELECT * FROM files WHERE order_id = $1 ORDER BY created_at',
+          [row.id]
+        );
+        
+        return {
+          id: row.id,
+          level: row.level,
+          step: row.step,
+          state: row.state,
+          initiator_id: row.initiator_id,
+          description: row.description,
+          reply: row.reply,
+          amount: row.amount,
+          currency: row.currency,
+          created_at: row.created_at,
+          updated_at: row.updated_at,
+          initiator: {
+            id: row.initiator_id,
+            tg_username: row.initiator_username,
+            chat_id: row.initiator_chat_id
+          },
+          files: filesResult.rows
+        };
+      })
+    );
     
-    return NextResponse.json(orders);
+    return NextResponse.json(ordersWithFiles);
   } catch (error) {
     console.error('Error fetching orders:', error);
     return NextResponse.json({ error: 'Failed to fetch orders' }, { status: 500 });

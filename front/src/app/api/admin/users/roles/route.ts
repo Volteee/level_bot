@@ -29,7 +29,6 @@ export async function PUT(request: Request) {
     const currentUserId = currentUserResult.rows[0].id;
     
     // Проверяем, что текущий пользователь не удаляет у себя админские права
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const currentUser = users.find((user: any) => user.id === currentUserId);
     if (currentUser && !currentUser.roles.includes('ADMIN')) {
       return NextResponse.json(
@@ -54,10 +53,11 @@ export async function PUT(request: Request) {
       // Удаляем все текущие роли пользователя
       await client.query('DELETE FROM users_roles WHERE user_id = $1', [user.id]);
       
-      // Добавляем новые роли
+      // Добавляем новые роли с указанием всех обязательных полей
       for (const role of user.roles) {
         await client.query(
-          'INSERT INTO users_roles (user_id, role) VALUES ($1, $2)',
+          `INSERT INTO users_roles (id, user_id, role, created_at, updated_at) 
+           VALUES (gen_random_uuid(), $1, $2, NOW(), NOW())`,
           [user.id, role]
         );
       }

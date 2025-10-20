@@ -11,26 +11,51 @@ export async function GET(request: Request) {
   
   const client = await pool.connect();
   try {
+    // Альтернативный запрос без ARRAY_AGG
     const result = await client.query(`
       SELECT 
         u.id,
         u.tg_username,
         u.chat_id,
         u.relation_id,
-        ARRAY_AGG(ur.role) as roles
+        (
+          SELECT JSON_AGG(ur.role)
+          FROM users_roles ur 
+          WHERE ur.user_id = u.id AND ur.role IS NOT NULL
+        ) as roles
       FROM users u
-      LEFT JOIN users_roles ur ON u.id = ur.user_id
-      GROUP BY u.id, u.tg_username, u.chat_id, u.relation_id
       ORDER BY u.tg_username
     `);
     
-    const users = result.rows.map(row => ({
-      id: row.id,
-      tg_username: row.tg_username,
-      chat_id: row.chat_id,
-      relation_id: row.relation_id,
-      roles: row.roles.filter((role: string) => role !== null)
-    }));
+    const users = result.rows.map(row => {
+      // Обрабатываем roles как JSON массив
+      let roles: string[] = [];
+      
+      if (row.roles && typeof row.roles === 'string') {
+        // Если это JSON строка, парсим её
+        try {
+          roles = JSON.parse(row.roles);
+        } catch (e) {
+          console.error('Error parsing roles JSON:', e);
+        }
+      } else if (Array.isArray(row.roles)) {
+        // Если это уже массив
+        roles = row.roles;
+      }
+      
+      // Убедимся, что roles всегда массив
+      if (!Array.isArray(roles)) {
+        roles = [];
+      }
+      
+      return {
+        id: row.id,
+        tg_username: row.tg_username,
+        chat_id: row.chat_id,
+        relation_id: row.relation_id,
+        roles: roles
+      };
+    });
     
     return NextResponse.json(users);
   } catch (error) {

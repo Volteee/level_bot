@@ -83,17 +83,20 @@ export async function PUT(request: Request) {
     // Очищаем существующие отношения
     await client.query('DELETE FROM relations');
     
-    // Вставляем новые отношения
+    // Вставляем новые отношения с указанием всех обязательных полей
     for (const relation of relations) {
       if (relation.initiator_id) {
         await client.query(
           `INSERT INTO relations (
+            id,
             initiator_id, 
             first_inspector_id, 
             second_inspector_id, 
             third_inspector_id, 
-            forth_inspector_id
-          ) VALUES ($1, $2, $3, $4, $5)`,
+            forth_inspector_id,
+            created_at,
+            updated_at
+          ) VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, NOW(), NOW())`,
           [
             relation.initiator_id,
             relation.first_inspector_id,

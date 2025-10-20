@@ -128,13 +128,15 @@ export async function PUT(request: Request) {
     if (checkResult.rows.length > 0) {
       // Обновляем существующий конфиг
       await client.query(
-        'UPDATE configs SET data = $1 WHERE key = $2',
+        'UPDATE configs SET data = $1, updated_at = NOW() WHERE key = $2',
         [conditions, 'relation_conditions']
       );
     } else {
-      // Создаем новый конфиг
+      // Создаем новый конфиг с указанием всех обязательных полей
       await client.query(
-        'INSERT INTO configs (key, data) VALUES ($1, $2)',
+        `INSERT INTO configs (
+          id, key, data, created_at, updated_at
+        ) VALUES (gen_random_uuid(), $1, $2, NOW(), NOW())`,
         ['relation_conditions', conditions]
       );
     }

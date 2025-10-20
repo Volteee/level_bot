@@ -13,46 +13,45 @@ export async function checkAuth(request: Request) {
     );
     if (!isInitDataValid) {
         return NextResponse.json(
-            { error: 'Forbidden' }, 
+            { error: 'Forbidden - Invalid init data' }, 
             { status: 403 }
         );
     }
-    const username = parse(initData).user?.username;
+    const parsedData = parse(initData);
+    const username = parsedData.user?.username;
     if (!username) {
         return NextResponse.json(
-            { error: 'Forbidden' }, 
+            { error: 'Forbidden - No username' }, 
             { status: 403 }
         );
     }
     const client = await pool.connect();
     try {
-        const result = await client.query(`
-            SELECT ARRAY_AGG(ur.role) as roles 
-            FROM users u
-            LEFT JOIN users_roles ur ON u.id = ur.user_id
-            WHERE u.tg_username = $1
-            GROUP BY u.id
-        `, [username]);
-        
-        if (result.rows.length === 0) {
+        const userCheck = await client.query(
+            'SELECT id FROM users WHERE tg_username = $1',
+            [username]
+        );
+        if (userCheck.rows.length === 0) {
             return NextResponse.json(
-                { error: 'User not found' }, 
+                { error: 'User not found in system' }, 
                 { status: 403 }
             );
         }
-        
-        const roles = result.rows[0].roles.filter((role: string) => role !== null);
-        
-        if (!roles.includes('ADMIN')) {
+        const rolesResult = await client.query(`
+            SELECT ur.role 
+            FROM users_roles ur 
+            WHERE ur.user_id = $1
+        `, [userCheck.rows[0].id]);
+        const roles = rolesResult.rows.map(row => row.role);
+        const hasAdminRole = roles.includes('ADMIN');
+        if (!hasAdminRole) {
             return NextResponse.json(
-                { error: 'Forbidden - Admin access required' }, 
+                { error: 'Forbidden - Admin access required. Your roles: ' + roles.join(', ') }, 
                 { status: 403 }
             );
         }
-        
         return null;
     } catch (error) {
-        console.error('Error checking auth:', error);
         return NextResponse.json(
             { error: 'Failed to check user role' }, 
             { status: 500 }

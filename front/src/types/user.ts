@@ -29,6 +29,21 @@ export interface Relation {
   forth_inspector?: User;
 }
 
+export enum FileMediaTypeEnum {
+  DOCUMENT = "DOCUMENT",
+  PHOTO = "PHOTO", 
+  VIDEO = "VIDEO"
+}
+
+export interface File {
+  id: string;
+  path: string;
+  media_type: FileMediaTypeEnum;
+  order_id: string;
+  created_at: string;
+  updated_at?: string;
+}
+
 export interface Order {
   id: string;
   level: number;
@@ -42,6 +57,7 @@ export interface Order {
   created_at: string;
   updated_at?: string;
   initiator?: User;
+  files?: File[]; // Добавляем файлы
 }
 
 export enum OrderStateEnum {
