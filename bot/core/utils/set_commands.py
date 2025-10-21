@@ -12,18 +12,6 @@ async def set_commands(bot: Bot):
             command="cancel",
             description="Отмена"
         ),
-        BotCommand(
-            command="revoke",
-            description="Отозвать заявку"
-        ),
-        BotCommand(
-            command="help",
-            description="Помощь"
-        ),
-        BotCommand(
-            command="admin",
-            description="Панель администратора"
-        ),
     ]
 
     await bot.set_my_commands(commands, BotCommandScopeDefault())

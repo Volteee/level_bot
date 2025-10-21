@@ -28,7 +28,7 @@ export async function PUT(request: Request) {
     
     const currentUserId = currentUserResult.rows[0].id;
     
-    // Проверяем, что текущий пользователь не удаляет у себя админские права
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const currentUser = users.find((user: any) => user.id === currentUserId);
     if (currentUser && !currentUser.roles.includes('ADMIN')) {
       return NextResponse.json(

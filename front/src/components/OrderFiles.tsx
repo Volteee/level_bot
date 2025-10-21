@@ -2,6 +2,7 @@
 'use client';
 
 import { File, FileMediaTypeEnum } from '@/types/user';
+import Image from 'next/image';
 import { useState } from 'react';
 
 interface OrderFilesProps {
@@ -19,7 +20,7 @@ export default function OrderFiles({ files }: OrderFilesProps) {
     if (file.media_type === FileMediaTypeEnum.PHOTO) {
       return (
         <div className="flex-shrink-0 w-16 h-16 bg-gray-200 rounded-lg overflow-hidden">
-          <img 
+          <Image 
             src={getFileUrl(file.path)} 
             alt="Превью заявки"
             className="w-full h-full object-cover"

@@ -4,7 +4,7 @@ from aiogram.types import CallbackQuery, Message, InputMediaDocument, InputMedia
 from aiogram.fsm.context import FSMContext
 
 from core import models
-from core.utils.enums import FileMediaTypeEnum, MessageTypeEnum, OrderStateEnum
+from core.utils.enums import FileMediaTypeEnum, MessageTypeEnum, OrderStateEnum, UserRoleEnum
 from core.utils.get_order_next_step import get_order_next_step
 from core.utils.maps import STATE_ENUM_TO_TEXT
 
@@ -13,6 +13,24 @@ from ..keyboards import cancelButton, SkipOrCancelKeyboard, chooseActionKeyboard
 
 
 async def pay_order(call: CallbackQuery, bot: Bot, state: FSMContext):
+    user = await models.user.get_user_by_tg_username(
+        tg_username=call.from_user.username,
+    )
+    if not user:
+        await call.answer('Недостаточно прав.')
+        return
+    user_roles = await models.user_role.get_user_roles_by_user_id(user_id=user.id)
+    if not user_roles:
+        await call.answer('Недостаточно прав.')
+        return
+    is_payeer = False
+    for user_role in user_roles:
+        if user_role.role == UserRoleEnum.PAYEER:
+            is_payeer = True
+            break
+    if not is_payeer:
+        await call.answer(f'Недостаточно прав.')
+        return
     await state.clear()
     await call.message.delete()
     resp_type = call.data.replace('pay_order_', '')
@@ -46,6 +64,24 @@ async def pay_order(call: CallbackQuery, bot: Bot, state: FSMContext):
 
 
 async def reply_order(message: Message, bot: Bot, state: FSMContext):
+    user = await models.user.get_user_by_tg_username(
+        tg_username=message.from_user.username,
+    )
+    if not user:
+        await message.reply('Недостаточно прав.')
+        return
+    user_roles = await models.user_role.get_user_roles_by_user_id(user_id=user.id)
+    if not user_roles:
+        await message.reply('Недостаточно прав.')
+        return
+    is_payeer = False
+    for user_role in user_roles:
+        if user_role.role == UserRoleEnum.PAYEER:
+            is_payeer = True
+            break
+    if not is_payeer:
+        await message.reply(f'Недостаточно прав.')
+        return
     state_data = await state.get_data()
     resp_type = state_data['resp_type']
     await bot.delete_message(message.chat.id, state_data['last_message_id'])

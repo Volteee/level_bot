@@ -19,6 +19,7 @@ export default function OrdersManagement() {
 
   useEffect(() => {
     if (initData !== '') fetchOrders();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initData]);
 
   const fetchOrders = async () => {

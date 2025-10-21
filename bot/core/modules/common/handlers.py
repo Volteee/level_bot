@@ -130,4 +130,4 @@ async def start_command(message: Message, bot: Bot):
         await message.answer("У вас нет доступных команд.")
         return
     if (UserRoleEnum.ADMIN in sub):
-        pass
+        await message.answer("Для добавления чата плательщиков, в этом чате нужно вызвать команду /add_payeer_chat")

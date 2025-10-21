@@ -51,6 +51,7 @@ export async function checkAuth(request: Request) {
             );
         }
         return null;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
         return NextResponse.json(
             { error: 'Failed to check user role' }, 
