@@ -4,11 +4,13 @@ from aiogram.fsm.context import FSMContext
 
 from core import models
 from core.modules.inspector.states import CheckOrderSteps
+from core.modules.payeer.states import PayOrderSteps
 from core.settings import settings
 from core.utils.enums import UserRoleEnum
 
 
 from ..keyboards import chooseActionKeyboard
+from core.modules.inspector.keyboards import chooseActionKeyboard as choosePayActionKeyboard
 
 
 async def cancel_callback(call: CallbackQuery, bot: Bot, state: FSMContext):
@@ -29,6 +31,15 @@ async def cancel_callback(call: CallbackQuery, bot: Bot, state: FSMContext):
             reply_to_message_id=(await state.get_value('order_message_id')),
             reply_markup=chooseActionKeyboard,
         )
+        return
+    if (await state.get_state()) == PayOrderSteps.GET_REPLY.state:
+        await bot.send_message(
+            call.message.chat.id,
+            'Выберите действие:',
+            reply_to_message_id=(await state.get_value('order_message_id')),
+            reply_markup=choosePayActionKeyboard,
+        )
+        return
     
     await state.clear()
 
@@ -51,7 +62,16 @@ async def cancel_command(message: Message, bot: Bot, state: FSMContext):
             reply_to_message_id=(await state.get_value('order_message_id')),
             reply_markup=chooseActionKeyboard,
         )
-        
+        return
+    if (await state.get_state()) == PayOrderSteps.GET_REPLY.state:
+        await bot.send_message(
+            message.chat.id,
+            'Выберите действие:',
+            reply_to_message_id=(await state.get_value('order_message_id')),
+            reply_markup=choosePayActionKeyboard,
+        )
+        return
+
     await state.clear()
 
 

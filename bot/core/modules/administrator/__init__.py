@@ -1,1 +1,0 @@
-from core.modules.administrator.register_handlers import register_handlers

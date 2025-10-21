@@ -25,6 +25,7 @@ class OrderCurrencyEnum(str, enum.Enum):
 class MessageTypeEnum(str, enum.Enum):
     INITIATOR_MESSAGE = 'INITIATOR_MESSAGE'
     INSPECTOR_MESSAGE = 'INSPECTOR_MESSAGE'
+    PAYEER_MESSAGE = 'PAYEER_MESSAGE'
 
 
 class FileMediaTypeEnum(str, enum.Enum):

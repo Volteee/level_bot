@@ -94,7 +94,7 @@ def upgrade() -> None:
     sa.Column('id', sa.Uuid(), nullable=False),
     sa.Column('chat_id', sa.BigInteger(), nullable=False),
     sa.Column('message_id', sa.BigInteger(), nullable=False),
-    sa.Column('message_type', sa.Enum('INITIATOR_MESSAGE', 'INSPECTOR_MESSAGE', name='messagetypeenum'), nullable=False),
+    sa.Column('message_type', sa.Enum('INITIATOR_MESSAGE', 'INSPECTOR_MESSAGE', 'PAYEER_MESSAGE', name='messagetypeenum'), nullable=False),
     sa.Column('order_id', sa.Uuid(), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=False),
     sa.Column('updated_at', sa.DateTime(), nullable=True),

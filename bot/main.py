@@ -6,15 +6,13 @@ from core.settings import settings
 import asyncio
 import logging
 
-# from core.utils.init_admin import init_admin
 # from core.utils.set_commands import set_commands
 
-from core.modules import initiator, inspector, common
+from core.modules import admin, initiator, inspector, common, payeer
 
 
 async def start_bot(bot: Bot):
     # await set_commands(bot)
-    # await init_admin()
     pass
 
 
@@ -32,9 +30,11 @@ async def main():
     dp.startup.register(start_bot)
     dp.shutdown.register(stop_bot)
 
+    admin.register_handlers(dp)
     common.register_handlers(dp)
     initiator.register_handlers(dp)
     inspector.register_handlers(dp)
+    payeer.register_handlers(dp)
 
     dp.message.middleware(MediaGroupMiddleware())
 

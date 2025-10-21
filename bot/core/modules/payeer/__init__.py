@@ -1,0 +1,1 @@
+from core.modules.payeer.register_handlers import register_handlers

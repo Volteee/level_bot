@@ -5,22 +5,45 @@ import path from 'path';
 
 export async function GET(
   request: Request,
-  { params }: { params: { path: string[] } }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
   try {
-    // Получаем полный путь к файлу
-    const filePath = path.join(process.cwd(), ...params.path);
+    // Ожидаем параметры
+    const { path: pathArray } = await params;
     
-    console.log('Looking for file at:', filePath); // Для отладки
+    // Получаем исходный путь к файлу
+    const originalPath = path.join(process.cwd(), ...pathArray);
     
-    // Проверяем существование файла
-    if (!fs.existsSync(filePath)) {
-      console.log('File not found at:', filePath);
-      return NextResponse.json({ error: 'File not found' }, { status: 404 });
+    console.log('Looking for file at:', originalPath);
+
+    // Сначала проверяем существование файла по исходному пути
+    let filePath = originalPath;
+    let stats: fs.Stats;
+
+    if (fs.existsSync(originalPath)) {
+      stats = fs.statSync(originalPath);
+    } else {
+      // Если файл не найден, проверяем возможные расширения для изображений
+      const possibleExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+      let foundPath: string | null = null;
+
+      for (const ext of possibleExtensions) {
+        const testPath = originalPath + ext;
+        if (fs.existsSync(testPath)) {
+          foundPath = testPath;
+          break;
+        }
+      }
+
+      if (!foundPath) {
+        console.log('File not found at:', originalPath, 'and no extensions tried');
+        return NextResponse.json({ error: 'File not found' }, { status: 404 });
+      }
+
+      filePath = foundPath;
+      stats = fs.statSync(filePath);
     }
 
-    // Получаем статистику файла
-    const stats = fs.statSync(filePath);
     if (!stats.isFile()) {
       return NextResponse.json({ error: 'Not a file' }, { status: 400 });
     }
@@ -49,7 +72,25 @@ export async function GET(
       '.wav': 'audio/wav',
     };
     
-    const contentType = mimeTypes[ext] || 'application/octet-stream';
+    // Если расширение не найдено, пытаемся определить тип по содержимому
+    let contentType = mimeTypes[ext];
+    if (!contentType) {
+      // Простая проверка сигнатур файлов
+      if (fileBuffer.length >= 3) {
+        const header = fileBuffer.slice(0, 3);
+        if (header[0] === 0xFF && header[1] === 0xD8 && header[2] === 0xFF) {
+          contentType = 'image/jpeg';
+        } else if (header[0] === 0x89 && header[1] === 0x50 && header[2] === 0x4E) {
+          contentType = 'image/png';
+        } else if (header[0] === 0x47 && header[1] === 0x49 && header[2] === 0x46) {
+          contentType = 'image/gif';
+        } else {
+          contentType = 'application/octet-stream';
+        }
+      } else {
+        contentType = 'application/octet-stream';
+      }
+    }
     
     // Возвращаем файл
     return new NextResponse(fileBuffer, {
@@ -57,7 +98,7 @@ export async function GET(
       headers: {
         'Content-Type': contentType,
         'Content-Disposition': `inline; filename="${path.basename(filePath)}"`,
-        'Cache-Control': 'public, max-age=3600', // Кэшируем на 1 час
+        'Cache-Control': 'public, max-age=3600',
       },
     });
   } catch (error) {

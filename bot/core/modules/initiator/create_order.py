@@ -149,7 +149,11 @@ async def get_files(
         album = [message]
     initiator_username = album[-1].from_user.username
     initiator = await models.user.get_user_by_tg_username(tg_username=initiator_username)
-    relation: models.Relation = await models.relation.get_relation_by_initiator(initiator_id=initiator.id)
+    relation = await models.relation.get_relation_by_initiator(initiator_id=initiator.id)
+    if relation == None:
+        await message.answer('Администратор не назначил вам проверяющих. Обратитесь к нему за помощью.')
+        await state.clear()
+        return
     state_data = await state.get_data()
     level = await get_order_level(
         state_data["amount"],
@@ -167,8 +171,12 @@ async def get_files(
         case 4:
             inspector = await models.user.get_user_by_id(id=relation.forth_inspector_id)
         case 5:
-            await album[-1].answer("Произошла ошибка, администратор не назначил вам проверяющих.")
+            await album[-1].answer("Администратор не назначил вам проверяющих. Обратитесь к нему за помощью.")
             return
+    is_document = False
+    for message in album:
+        if message.document: is_document = True
+        await message.delete()
     order = models.Order(
         level,
         step,
@@ -189,11 +197,6 @@ async def get_files(
         await state.get_value('last_chat_id'),
         await state.get_value('last_message_id')
     )
-
-    is_document = False
-    for message in album:
-        if message.document: is_document = True
-        await message.delete()
     
     media_group = []
 

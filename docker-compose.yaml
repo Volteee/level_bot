@@ -15,6 +15,8 @@ services:
       POSTGRES_HOST: ${POSTGRES_HOST}
       POSTGRES_PORT: ${POSTGRES_PORT}
       BOT_TOKEN: ${BOT_TOKEN}
+    volumes:
+      - files:/data/files
     networks:
       - network
 

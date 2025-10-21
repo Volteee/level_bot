@@ -30,7 +30,7 @@ SkipOrCancelKeyboard = InlineKeyboardMarkup(inline_keyboard=[
 chooseActionKeyboard = InlineKeyboardMarkup(inline_keyboard=[
     [
         InlineKeyboardButton(
-            text = "Выполнить",
+            text = "Одобрить",
             callback_data="mark_order_success"
         ),
         InlineKeyboardButton(

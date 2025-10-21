@@ -13,6 +13,7 @@ ROLE_ENUM_TO_TEXT = {
 STATE_ENUM_TO_TEXT = {
     OrderStateEnum.CREATED: "Заявка создана [✉️]",
     OrderStateEnum.PENDING: "Заявка обрабатывается [✍️]",
-    OrderStateEnum.SUCCESS: "Заявка выполнена [✅]",
+    OrderStateEnum.PAID: "Заявка выплачена [💰]",
+    OrderStateEnum.SUCCESS: "Заявка одобрена [✔️]",
     OrderStateEnum.CANCELED: "Заявка отклонена [❌]",
 }
