@@ -234,7 +234,7 @@ async def get_files(
 
     if is_document:
         for message in album:
-            path = os.path.join('data','files',f'{int(time())}_{message.document.file_name}')
+            path = os.path.join('/data','files',f'{int(time())}_{message.document.file_name}')
             await bot.download(message.document, path)
             file = models.File(
                 path,
@@ -246,7 +246,7 @@ async def get_files(
     else:
         for message in album:
             if message.photo:
-                path = os.path.join('data','files',f'{int(time())}_{message.photo[-1].file_id}')
+                path = os.path.join('/data','files',f'{int(time())}_{message.photo[-1].file_id}')
                 await bot.download(message.photo[-1], path)
                 file = models.File(
                     path,
@@ -256,7 +256,7 @@ async def get_files(
                 await models.file.add_file(file=file)
                 files.append(file)
             else:
-                path = os.path.join('data','files',f'{int(time())}_{message.video.file_name}')
+                path = os.path.join('/data','files',f'{int(time())}_{message.video.file_name}')
                 await bot.download(message.video, path)
                 file = models.File(
                     path,
