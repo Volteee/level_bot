@@ -12,7 +12,7 @@ export async function GET(
     const { path: pathArray } = await params;
     
     // Получаем исходный путь к файлу
-    const originalPath = path.join(process.cwd(), ...pathArray);
+    const originalPath = path.join('/' + pathArray[0], ...pathArray.slice(1));
     
     console.log('Looking for file at:', originalPath);
 

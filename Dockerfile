@@ -21,7 +21,7 @@ COPY --from=bot_builder /app/requirements.txt .
 
 RUN pip install --no-cache /wheels/*
 
-RUN mkdir -p /app/data/files/
+RUN mkdir -p /data/files/
 
 COPY ./bot/core/ ./core/
 COPY ./bot/main.py ./
