@@ -24,6 +24,7 @@ export default function OrderFiles({ files }: OrderFilesProps) {
     if (file.media_type === FileMediaTypeEnum.PHOTO && !failedImages.has(file.id)) {
       return (
         <div className="flex-shrink-0 w-16 h-16 bg-gray-200 rounded-lg overflow-hidden">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img 
             src={getFileUrl(file.path)} 
             alt="Превью заявки"
