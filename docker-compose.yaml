@@ -96,7 +96,7 @@ services:
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
       - ./key.pem:/etc/ssl/certs/key.pem
-      - ./fullchain.pem:/etc/ssl/certs/fullchain.pem
+      - ./intermediate.pem:/etc/ssl/certs/intermediate.pem
     depends_on:
       - front
     networks:
